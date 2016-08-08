@@ -103,6 +103,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   }
 
   swap(valueId1, valueId2) {
+    // TODO: make helper methods
     const item1 = this._itemsById.get(valueId1)
     const item2 = this._itemsById.get(valueId2)
 
@@ -179,6 +180,7 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
 
 
   getBetween(valueId1, valueId2, includeStart, includeEnd) {
+    // TODO: use with mutations on map
     const item1 = this._itemsById.get(valueId1)
     const item2 = this._itemsById.get(valueId2)
 
@@ -227,16 +229,17 @@ export class IndexedDoublyLinkedList extends Collection.Keyed {
   }
 
   reverse() {
-    let newItemsById = Map()
-    this._itemsById.forEach((item) => {
-      const itemNext = item.get('nextItemId')
-      const itemPrev = item.get('prevItemId')
+    const newItemsById = this._itemsById.withMutations(thisMap => {
+      thisMap.forEach(item => {
+        const itemNext = item.get('nextItemId')
+        const itemPrev = item.get('prevItemId')
 
-      let newItem = item
-      newItem = newItem.set('nextItemId', itemPrev)
-      newItem = newItem.set('prevItemId', itemNext)
+        let newItem = item
+        newItem = newItem.set('nextItemId', itemPrev)
+        newItem = newItem.set('prevItemId', itemNext)
 
-      newItemsById = newItemsById.set(item.get('id'), newItem)
+        thisMap.set(item.get('id'), newItem)
+      })
     })
 
     return makeIndexedDoublyLinkedList(newItemsById, this._lastItemId, this._firstItemId, 
@@ -436,7 +439,7 @@ const insertItemAfterItem = (dlList, afterItem, newItem) => {
 const updateValueInItemsById = (dlList, itemId, value) => {
   const item = dlList._itemsById.get(itemId)
   const newItem = setFieldOnItem(item, 'value', value)
-  const newItemsById = dlList._itemsById.set(itemId, newItem)
+  const newItemsById = dlList._itemsById.withMutations(map => map.set(itemId, newItem))
   return updateItemsById(dlList, newItemsById)
 }
 

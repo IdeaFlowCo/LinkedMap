@@ -320,16 +320,17 @@
     };
 
     IndexedDoublyLinkedList.prototype.reverse = function() {
-      var newItemsById = immutable.Map()
-      this._itemsById.forEach(function(item)  {
-        var itemNext = item.get('nextItemId')
-        var itemPrev = item.get('prevItemId')
+      var newItemsById = this._itemsById.withMutations(function(thisMap ) {
+        thisMap.forEach(function(item ) {
+          var itemNext = item.get('nextItemId')
+          var itemPrev = item.get('prevItemId')
 
-        var newItem = item
-        newItem = newItem.set('nextItemId', itemPrev)
-        newItem = newItem.set('prevItemId', itemNext)
+          var newItem = item
+          newItem = newItem.set('nextItemId', itemPrev)
+          newItem = newItem.set('prevItemId', itemNext)
 
-        newItemsById = newItemsById.set(item.get('id'), newItem)
+          thisMap.set(item.get('id'), newItem)
+        })
       })
 
       return makeIndexedDoublyLinkedList(newItemsById, this._lastItemId, this._firstItemId, 
